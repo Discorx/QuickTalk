@@ -1,34 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Chat</title>
+<meta charset="UTF-8">
+<title>Chat App</title>
+
+<style>
+body { font-family: Arial, sans-serif; }
+section { display: none; }
+section.active { display: block; }
+#messages { height: 250px; border: 1px solid #000; overflow-y: auto; padding: 5px; }
+</style>
 </head>
+
 <body>
 
-<h1>Chat privado</h1>
+<h1>Chat Web</h1>
 
-<section id="chatHeader">
-  <p>Usuario: <strong>nombre_usuario</strong></p>
-  <p>Estado: online</p>
+<!-- LOGIN -->
+<section id="login" class="active">
+  <h2>Login</h2>
+  <input id="loginEmail" type="email" placeholder="Correo"><br><br>
+  <input id="loginPass" type="password" placeholder="Contraseña"><br><br>
+  <button onclick="login()">Entrar</button>
+  <p><a href="#" onclick="show('register')">Registrarse</a></p>
 </section>
 
-<hr>
-
-<section id="messages" style="height:300px; overflow-y:auto;">
-  <!-- mensajes -->
+<!-- REGISTER -->
+<section id="register">
+  <h2>Registro</h2>
+  <input id="regUser" type="text" placeholder="Usuario"><br><br>
+  <input id="regEmail" type="email" placeholder="Correo"><br><br>
+  <input id="regPass" type="password" placeholder="Contraseña"><br><br>
+  <button onclick="register()">Crear cuenta</button>
+  <p><a href="#" onclick="show('login')">Volver</a></p>
 </section>
 
-<hr>
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <h2>Dashboard</h2>
+  <p>Usuario: <span id="currentUser"></span></p>
 
-<form id="messageForm">
-  <input type="text" placeholder="Escribí un mensaje" required>
-  <button type="submit">Enviar</button>
-</form>
+  <h3>Contactos</h3>
+  <ul id="contacts"></ul>
 
-<p>
-  <a href="dashboard.html">Volver</a>
-</p>
+  <h3>Añadir contacto</h3>
+  <input id="addFriendName" placeholder="Nombre de usuario">
+  <button onclick="sendRequest()">Enviar</button>
+
+  <h3>Solicitudes</h3>
+  <ul id="requests"></ul>
+
+  <br>
+  <button onclick="show('support')">Soporte</button>
+  <button onclick="show('settings')">Ajustes</button>
+</section>
+
+<!-- CHAT -->
+<section id="chat">
+  <h2>Chat con <span id="chatUser"></span></h2>
+
+  <div id="messages"></div><br>
+
+  <input id="msgInput" placeholder="Mensaje">
+  <button onclick="sendMessage()">Enviar</button><br><br>
+
+  <button onclick="show('dashboard')">Volver</button>
+</section>
+
+<!-- SOPORTE -->
+<section id="support">
+  <h2>Soporte</h2>
+  <p>Un operador humano responderá aquí.</p>
+  <textarea rows="5" cols="40" placeholder="Escribí tu consulta"></textarea><br><br>
+  <button>Enviar</button><br><br>
+  <button onclick="show('dashboard')">Volver</button>
+</section>
+
+<!-- SETTINGS -->
+<section id="settings">
+  <h2>Ajustes</h2>
+  <label><input type="checkbox"> Sonido</label><br>
+  <label><input type="checkbox"> Notificaciones</label><br><br>
+  <button onclick="show('dashboard')">Volver</button>
+</section>
+
+<script>
+/* ====== DATOS SIMULADOS ====== */
+let users = {};
+let currentUser = null;
+let currentChat = null;
+
+/* ====== NAVEGACIÓN ====== */
+function show(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+/* ====== REGISTRO ====== */
+function register() {
+  const user = regUser.value;
+  if (users[user]) return alert("Usuario existe");
+
+  users[user] = {
+    contacts: [],
+    requests: [],
+    messages: {}
+  };
+
+  alert("Cuenta creada");
+  show("login");
+}
+
+/* ====== LOGIN ====== */
+function login() {
+  const email = loginEmail.value;
+  const name = Object.keys(users)[0];
+  if (!name) return alert("No hay usuarios");
+
+  currentUser = name;
+  currentUserSpan();
+  show("dashboard");
+}
+
+/* ====== DASHBOARD ====== */
+function currentUserSpan() {
+  document.getElementById("currentUser").textContent = currentUser;
+  render();
+}
+
+function render() {
+  const c = document.getElementById("contacts");
+  const r = document.getElementById("requests");
+  c.innerHTML = "";
+  r.innerHTML = "";
+
+  users[currentUser].contacts.forEach(u => {
+    const li = document.createElement("li");
+    li.textContent = u;
+    li.onclick = () => openChat(u);
+    c.appendChild(li);
+  });
+
+  users[currentUser].requests.forEach(u => {
+    const li = document.createElement("li");
+    li.innerHTML = `${u} 
+      <button onclick="accept('${u}')">Aceptar</button>`;
+    r.appendChild(li);
+  });
+}
+
+/* ====== AMIGOS ====== */
+function sendRequest() {
+  const target = addFriendName.value;
+  if (!users[target]) return alert("Usuario no existe");
+  users[target].requests.push(currentUser);
+  alert("Solicitud enviada");
+}
+
+function accept(user) {
+  users[currentUser].contacts.push(user);
+  users[user].contacts.push(currentUser);
+  users[currentUser].requests =
+    users[currentUser].requests.filter(u => u !== user);
+  render();
+}
+
+/* ====== CHAT ====== */
+function openChat(user) {
+  currentChat = user;
+  document.getElementById("chatUser").textContent = user;
+  show("chat");
+  loadMessages();
+}
+
+function sendMessage() {
+  const text = msgInput.value;
+  if (!users[currentUser].messages[currentChat])
+    users[currentUser].messages[currentChat] = [];
+
+  users[currentUser].messages[currentChat].push("Yo: " + text);
+  msgInput.value = "";
+  loadMessages();
+}
+
+function loadMessages() {
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
+  const msgs = users[currentUser].messages[currentChat] || [];
+  msgs.forEach(m => {
+    const p = document.createElement("p");
+    p.textContent = m;
+    box.appendChild(p);
+  });
+}
+</script>
 
 </body>
 </html>
