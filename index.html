@@ -3,229 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MMORPG Dev Dashboard</title>
+<title>MMORPG Dev Dashboard PRO</title>
 <style>
 :root{
-  --bg:#0b1020;
-  --panel:#121936;
-  --accent:#6366f1;
-  --accent2:#22c55e;
-  --text:#e5e7eb;
-  --muted:#9ca3af;
+  --bg:#0b1020;--panel:#121936;--accent:#6366f1;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--text:#e5e7eb;--muted:#9ca3af;
 }
 *{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter,system-ui,Arial;
-  background:radial-gradient(circle at top,#1e293b,var(--bg));
-  color:var(--text);
-}
-h1{
-  text-align:center;
-  padding:20px;
-  letter-spacing:1px;
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-}
-.toolbar{
-  display:flex;
-  gap:10px;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  margin-bottom:15px;
-}
-input[type=text]{
-  flex:1;
-  padding:10px;
-  border-radius:8px;
-  border:none;
-  background:#0f172a;
-  color:white;
-}
-button{
-  padding:10px 14px;
-  border:none;
-  border-radius:8px;
-  background:var(--accent);
-  color:white;
-  cursor:pointer;
-}
-.progress{
-  height:18px;
-  background:#1f2937;
-  border-radius:10px;
-  overflow:hidden;
-  margin-bottom:20px;
-}
-.progress-bar{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,var(--accent),var(--accent2));
-  transition:.3s;
-}
-.category{
-  margin-bottom:18px;
-  background:var(--panel);
-  border-radius:14px;
-  padding:15px;
-  box-shadow:0 0 20px rgba(0,0,0,.4);
-}
-.category h2{
-  margin:0 0 10px;
-  display:flex;
-  justify-content:space-between;
-  cursor:pointer;
-}
-.item{
-  display:flex;
-  align-items:center;
-  padding:6px 0;
-}
-.item label{
-  flex:1;
-}
-.item.done label{
-  text-decoration:line-through;
-  color:var(--muted);
-}
-.badge{
-  font-size:11px;
-  padding:3px 6px;
-  border-radius:6px;
-  background:#1f2937;
-  margin-left:6px;
-}
+body{margin:0;font-family:Inter,system-ui;background:radial-gradient(circle at top,#1e293b,var(--bg));color:var(--text)}
+h1{text-align:center;padding:18px 10px;margin:0}
+.container{max-width:1200px;margin:auto;padding:15px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+input,select{padding:10px;border-radius:8px;border:none;background:#0f172a;color:white}
+button{padding:10px 14px;border:none;border-radius:8px;background:var(--accent);color:white;cursor:pointer}
+.progress{height:18px;background:#1f2937;border-radius:10px;overflow:hidden;margin-bottom:10px}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--ok));transition:.3s}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.category{background:var(--panel);border-radius:14px;padding:12px;box-shadow:0 0 20px rgba(0,0,0,.4)}
+.category h2{margin:0;display:flex;justify-content:space-between;cursor:pointer;font-size:16px}
+.item{display:flex;align-items:center;padding:6px 0;gap:8px}
+.item.done label{text-decoration:line-through;color:var(--muted)}
+.badge{font-size:10px;padding:3px 6px;border-radius:6px}
+.p1{background:var(--danger)}
+.p2{background:var(--warn)}
+.p3{background:var(--ok)}
+.stats{display:flex;gap:10px;margin-bottom:10px;font-size:12px;color:var(--muted)}
+.hidden{display:none}
 </style>
 </head>
 <body>
-
-<h1>MMORPG Dev Dashboard</h1>
+<h1>MMORPG Dev Dashboard PRO</h1>
 <div class="container">
 
 <div class="toolbar">
-  <input id="search" placeholder="Buscar tarea...">
-  <button onclick="exportData()">Exportar</button>
-  <button onclick="importData()">Importar</button>
-  <button onclick="resetAll()">Reset</button>
+<input id="search" placeholder="Buscar...">
+<select id="filter">
+<option value="all">Todo</option>
+<option value="todo">Pendiente</option>
+<option value="done">Completado</option>
+</select>
+<button onclick="exportData()">Exportar</button>
+<button onclick="importData()">Importar</button>
+<button onclick="resetAll()">Reset</button>
 </div>
 
-<div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+<div class="progress"><div id="globalBar" class="progress-bar"></div></div>
+<div id="stats" class="stats"></div>
 
-<div id="checklist"></div>
+<div id="checklist" class="grid"></div>
 </div>
 
 <script>
 const data={
-"Diseño":[
-"Core loop","Balance","Economía","PvE","PvP","Endgame","Monetización","Retención","Eventos","Clanes"
-],
-"Cliente":[
-"Movimiento","Cámara","Animaciones","UI","Inventario","Mapa","Chat","Optimización","Controles mobile"
-],
-"Servidor":[
-"Servidor autoritativo","Sincronización","Instancias","Escalado","Validación","Gestión sesiones"
-],
-"Networking":[
-"Protocolos","Compresión","Predicción","Reconciliación","Lag compensation","Reconexión"
-],
-"Base de Datos":[
-"Persistencia","Inventarios","Progreso","Backups","Cache","Escalabilidad"
-],
-"Gameplay":[
-"Combate","IA","Loot","Crafting","Trading","Quests","NPCs","Skills"
-],
-"Contenido":[
-"Modelos","Animaciones","VFX","Audio","Lore","Misiones","Enemigos"
-],
-"Infraestructura":[
-"Hosting","Docker","Kubernetes","Logs","Monitoreo","Autoescalado"
-],
-"Seguridad":[
-"Anti-cheat","Cifrado","Auth segura","Prevención exploits"
-]
+"Diseño":[["Core loop",1],["Economía",1],["Balance",1],["PvE",2],["PvP",2],["Endgame",1],["Eventos",3]],
+"Cliente":[["Movimiento",1],["Cámara",2],["UI",1],["Inventario",1],["Chat",2],["Optimización",1]],
+"Servidor":[["Autoritativo",1],["Sincronización",1],["Instancias",2],["Escalado",1],["Validación",1]],
+"Networking":[["Protocolos",1],["Predicción",1],["Reconciliación",1],["LagComp",1]],
+"DB":[["Persistencia",1],["Inventario",1],["Backups",2],["Cache",2]],
+"Gameplay":[["Combate",1],["IA",1],["Loot",2],["Crafting",2],["Trading",2],["Quests",1]],
+"Infraestructura":[["Hosting",1],["Logs",2],["Monitoreo",1],["AutoScale",1]],
+"Seguridad":[["AntiCheat",1],["Cifrado",1],["Auth",1]]
 };
 
-const checklist=document.getElementById("checklist");
+const list=document.getElementById("checklist");
 const search=document.getElementById("search");
+const filter=document.getElementById("filter");
 
 function save(){
-  const s={};
-  document.querySelectorAll("input").forEach(cb=>s[cb.id]=cb.checked);
-  localStorage.setItem("mmocheck",JSON.stringify(s));
-  update();
+ let s={};document.querySelectorAll("input[type=checkbox]").forEach(cb=>s[cb.id]=cb.checked);
+ localStorage.setItem("mmopro",JSON.stringify(s));update();
 }
-function load(){return JSON.parse(localStorage.getItem("mmocheck")||"{}");}
+function load(){return JSON.parse(localStorage.getItem("mmopro")||"{}");}
 
 function update(){
-  const all=document.querySelectorAll("input");
-  const done=document.querySelectorAll("input:checked");
-  document.getElementById("progressBar").style.width=(done.length/all.length*100)+"%";
+ let all=document.querySelectorAll("input[type=checkbox]");
+ let done=document.querySelectorAll("input:checked");
+ let pct=all.length?done.length/all.length*100:0;
+ document.getElementById("globalBar").style.width=pct+"%";
+ document.getElementById("stats").textContent=`${done.length}/${all.length} completado (${pct.toFixed(1)}%)`;
 }
 
 function render(){
-  checklist.innerHTML="";
-  const saved=load();
+ list.innerHTML="";
+ let saved=load();
 
-  Object.entries(data).forEach(([cat,items])=>{
-    const div=document.createElement("div");
-    div.className="category";
+ Object.entries(data).forEach(([cat,items])=>{
+  let div=document.createElement("div");div.className="category";
+  let head=document.createElement("h2");head.textContent=cat;
+  let bar=document.createElement("div");bar.className="progress";
+  let barInner=document.createElement("div");barInner.className="progress-bar";
+  bar.appendChild(barInner);
 
-    const title=document.createElement("h2");
-    title.textContent=cat;
-    div.appendChild(title);
+  let body=document.createElement("div");
 
-    items.forEach((it,i)=>{
-      if(search.value && !it.toLowerCase().includes(search.value.toLowerCase())) return;
+  items.forEach((it,i)=>{
+    let [name,prio]=it;
+    if(search.value && !name.toLowerCase().includes(search.value.toLowerCase())) return;
 
-      const id=cat+i;
-      const row=document.createElement("div");
-      row.className="item";
+    let id=cat+i;
+    let checked=saved[id]||false;
 
-      const cb=document.createElement("input");
-      cb.type="checkbox";
-      cb.id=id;
-      cb.checked=saved[id]||false;
-      if(cb.checked) row.classList.add("done");
-      cb.onchange=()=>{row.classList.toggle("done");save();};
+    if(filter.value==="done" && !checked) return;
+    if(filter.value==="todo" && checked) return;
 
-      const label=document.createElement("label");
-      label.textContent=it;
+    let row=document.createElement("div");row.className="item";
+    if(checked) row.classList.add("done");
 
-      const badge=document.createElement("span");
-      badge.className="badge";
-      badge.textContent="task";
+    let cb=document.createElement("input");cb.type="checkbox";cb.id=id;cb.checked=checked;
+    cb.onchange=()=>{row.classList.toggle("done");save();render();};
 
-      row.appendChild(cb);
-      row.appendChild(label);
-      row.appendChild(badge);
-      div.appendChild(row);
-    });
+    let label=document.createElement("label");label.textContent=name;
 
-    checklist.appendChild(div);
+    let badge=document.createElement("span");badge.className="badge p"+prio;badge.textContent="P"+prio;
+
+    row.appendChild(cb);row.appendChild(label);row.appendChild(badge);
+    body.appendChild(row);
   });
 
-  update();
+  let total=items.length;
+  let done=items.filter((_,i)=>saved[cat+i]).length;
+  let pct=total?done/total*100:0;
+  barInner.style.width=pct+"%";
+
+  head.onclick=()=>body.classList.toggle("hidden");
+
+  div.appendChild(head);
+  div.appendChild(bar);
+  div.appendChild(body);
+  list.appendChild(div);
+ });
+ update();
 }
 
 search.oninput=render;
+filter.onchange=render;
 
-function exportData(){
-  const data=localStorage.getItem("mmocheck");
-  prompt("Copia tu progreso:",data);
-}
-function importData(){
-  const d=prompt("Pega tu progreso:");
-  if(d) localStorage.setItem("mmocheck",d),render();
-}
-function resetAll(){
-  if(confirm("Borrar progreso?")) localStorage.removeItem("mmocheck"),render();
-}
+function exportData(){prompt("Copia:",localStorage.getItem("mmopro"));}
+function importData(){let d=prompt("Pega:");if(d)localStorage.setItem("mmopro",d),render();}
+function resetAll(){if(confirm("Reset?"))localStorage.removeItem("mmopro"),render();}
 
 render();
 </script>
-
 </body>
 </html>
