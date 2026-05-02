@@ -3,161 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MMORPG Checklist</title>
+<title>MMORPG Dev Dashboard</title>
 <style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #0f172a, #1e293b);
-        color: #e2e8f0;
-    }
-    h1 {
-        text-align: center;
-        padding: 20px;
-    }
-    .container {
-        max-width: 1000px;
-        margin: auto;
-        padding: 20px;
-    }
-    .category {
-        margin-bottom: 20px;
-        background: rgba(255,255,255,0.05);
-        border-radius: 12px;
-        padding: 15px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.5);
-    }
-    .category h2 {
-        margin-top: 0;
-    }
-    .item {
-        display: flex;
-        align-items: center;
-        padding: 5px 0;
-    }
-    input[type="checkbox"] {
-        margin-right: 10px;
-        transform: scale(1.2);
-    }
-    .progress {
-        height: 20px;
-        background: #334155;
-        border-radius: 10px;
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-    .progress-bar {
-        height: 100%;
-        width: 0%;
-        background: linear-gradient(90deg, #22c55e, #4ade80);
-        transition: width 0.3s;
-    }
+:root{
+  --bg:#0b1020;
+  --panel:#121936;
+  --accent:#6366f1;
+  --accent2:#22c55e;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Arial;
+  background:radial-gradient(circle at top,#1e293b,var(--bg));
+  color:var(--text);
+}
+h1{
+  text-align:center;
+  padding:20px;
+  letter-spacing:1px;
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+.toolbar{
+  display:flex;
+  gap:10px;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+input[type=text]{
+  flex:1;
+  padding:10px;
+  border-radius:8px;
+  border:none;
+  background:#0f172a;
+  color:white;
+}
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+}
+.progress{
+  height:18px;
+  background:#1f2937;
+  border-radius:10px;
+  overflow:hidden;
+  margin-bottom:20px;
+}
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:.3s;
+}
+.category{
+  margin-bottom:18px;
+  background:var(--panel);
+  border-radius:14px;
+  padding:15px;
+  box-shadow:0 0 20px rgba(0,0,0,.4);
+}
+.category h2{
+  margin:0 0 10px;
+  display:flex;
+  justify-content:space-between;
+  cursor:pointer;
+}
+.item{
+  display:flex;
+  align-items:center;
+  padding:6px 0;
+}
+.item label{
+  flex:1;
+}
+.item.done label{
+  text-decoration:line-through;
+  color:var(--muted);
+}
+.badge{
+  font-size:11px;
+  padding:3px 6px;
+  border-radius:6px;
+  background:#1f2937;
+  margin-left:6px;
+}
 </style>
 </head>
 <body>
 
-<h1>MMORPG Checklist</h1>
+<h1>MMORPG Dev Dashboard</h1>
 <div class="container">
-    <div class="progress">
-        <div class="progress-bar" id="progressBar"></div>
-    </div>
-    <div id="checklist"></div>
+
+<div class="toolbar">
+  <input id="search" placeholder="Buscar tarea...">
+  <button onclick="exportData()">Exportar</button>
+  <button onclick="importData()">Importar</button>
+  <button onclick="resetAll()">Reset</button>
+</div>
+
+<div class="progress"><div id="progressBar" class="progress-bar"></div></div>
+
+<div id="checklist"></div>
 </div>
 
 <script>
-const data = {
-    "Diseño": [
-        "Core loop definido",
-        "Progresión",
-        "Sistema de combate",
-        "Economía",
-        "PvE",
-        "PvP"
-    ],
-    "Cliente": [
-        "Movimiento",
-        "Cámara",
-        "UI",
-        "Inventario",
-        "Chat"
-    ],
-    "Servidor": [
-        "Servidor autoritativo",
-        "Conexión estable",
-        "Sincronización",
-        "Instancias"
-    ],
-    "Networking": [
-        "Protocolos",
-        "Predicción",
-        "Reconciliación",
-        "Lag compensation"
-    ],
-    "Base de Datos": [
-        "Guardado de personajes",
-        "Inventario",
-        "Backups"
-    ]
+const data={
+"Diseño":[
+"Core loop","Balance","Economía","PvE","PvP","Endgame","Monetización","Retención","Eventos","Clanes"
+],
+"Cliente":[
+"Movimiento","Cámara","Animaciones","UI","Inventario","Mapa","Chat","Optimización","Controles mobile"
+],
+"Servidor":[
+"Servidor autoritativo","Sincronización","Instancias","Escalado","Validación","Gestión sesiones"
+],
+"Networking":[
+"Protocolos","Compresión","Predicción","Reconciliación","Lag compensation","Reconexión"
+],
+"Base de Datos":[
+"Persistencia","Inventarios","Progreso","Backups","Cache","Escalabilidad"
+],
+"Gameplay":[
+"Combate","IA","Loot","Crafting","Trading","Quests","NPCs","Skills"
+],
+"Contenido":[
+"Modelos","Animaciones","VFX","Audio","Lore","Misiones","Enemigos"
+],
+"Infraestructura":[
+"Hosting","Docker","Kubernetes","Logs","Monitoreo","Autoescalado"
+],
+"Seguridad":[
+"Anti-cheat","Cifrado","Auth segura","Prevención exploits"
+]
 };
 
-const checklist = document.getElementById("checklist");
+const checklist=document.getElementById("checklist");
+const search=document.getElementById("search");
 
-function saveState() {
-    const states = {};
-    document.querySelectorAll("input[type=checkbox]").forEach(cb => {
-        states[cb.id] = cb.checked;
+function save(){
+  const s={};
+  document.querySelectorAll("input").forEach(cb=>s[cb.id]=cb.checked);
+  localStorage.setItem("mmocheck",JSON.stringify(s));
+  update();
+}
+function load(){return JSON.parse(localStorage.getItem("mmocheck")||"{}");}
+
+function update(){
+  const all=document.querySelectorAll("input");
+  const done=document.querySelectorAll("input:checked");
+  document.getElementById("progressBar").style.width=(done.length/all.length*100)+"%";
+}
+
+function render(){
+  checklist.innerHTML="";
+  const saved=load();
+
+  Object.entries(data).forEach(([cat,items])=>{
+    const div=document.createElement("div");
+    div.className="category";
+
+    const title=document.createElement("h2");
+    title.textContent=cat;
+    div.appendChild(title);
+
+    items.forEach((it,i)=>{
+      if(search.value && !it.toLowerCase().includes(search.value.toLowerCase())) return;
+
+      const id=cat+i;
+      const row=document.createElement("div");
+      row.className="item";
+
+      const cb=document.createElement("input");
+      cb.type="checkbox";
+      cb.id=id;
+      cb.checked=saved[id]||false;
+      if(cb.checked) row.classList.add("done");
+      cb.onchange=()=>{row.classList.toggle("done");save();};
+
+      const label=document.createElement("label");
+      label.textContent=it;
+
+      const badge=document.createElement("span");
+      badge.className="badge";
+      badge.textContent="task";
+
+      row.appendChild(cb);
+      row.appendChild(label);
+      row.appendChild(badge);
+      div.appendChild(row);
     });
-    localStorage.setItem("mmorpgChecklist", JSON.stringify(states));
-    updateProgress();
+
+    checklist.appendChild(div);
+  });
+
+  update();
 }
 
-function loadState() {
-    return JSON.parse(localStorage.getItem("mmorpgChecklist") || "{}");
+search.oninput=render;
+
+function exportData(){
+  const data=localStorage.getItem("mmocheck");
+  prompt("Copia tu progreso:",data);
 }
-
-function updateProgress() {
-    const checkboxes = document.querySelectorAll("input[type=checkbox]");
-    const checked = document.querySelectorAll("input[type=checkbox]:checked");
-    const percent = (checked.length / checkboxes.length) * 100;
-    document.getElementById("progressBar").style.width = percent + "%";
+function importData(){
+  const d=prompt("Pega tu progreso:");
+  if(d) localStorage.setItem("mmocheck",d),render();
 }
-
-function render() {
-    const saved = loadState();
-
-    Object.keys(data).forEach(category => {
-        const div = document.createElement("div");
-        div.className = "category";
-
-        const title = document.createElement("h2");
-        title.textContent = category;
-        div.appendChild(title);
-
-        data[category].forEach((item, i) => {
-            const id = category + "-" + i;
-
-            const wrapper = document.createElement("div");
-            wrapper.className = "item";
-
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.id = id;
-            cb.checked = saved[id] || false;
-            cb.addEventListener("change", saveState);
-
-            const label = document.createElement("label");
-            label.htmlFor = id;
-            label.textContent = item;
-
-            wrapper.appendChild(cb);
-            wrapper.appendChild(label);
-            div.appendChild(wrapper);
-        });
-
-        checklist.appendChild(div);
-    });
-
-    updateProgress();
+function resetAll(){
+  if(confirm("Borrar progreso?")) localStorage.removeItem("mmocheck"),render();
 }
 
 render();
